@@ -1,5 +1,10 @@
 package nl.plusminos.gdx.morbidscorpion;
 
+import nl.plusminos.gdx.morbidscorpion.gamestates.Game;
+import nl.plusminos.gdx.morbidscorpion.gamestates.Load;
+import nl.plusminos.gdx.morbidscorpion.gamestates.Menu;
+import nl.plusminos.harness.gdx.gamestates.GamestateManager;
+
 import com.badlogic.gdx.ApplicationAdapter;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.GL20;
@@ -10,18 +15,46 @@ public class MorbidScorpion extends ApplicationAdapter {
 	SpriteBatch batch;
 	Texture img;
 	
+	GamestateManager gm;
+	
 	@Override
 	public void create () {
-		batch = new SpriteBatch();
-		img = new Texture("badlogic.jpg");
+//		batch = new SpriteBatch();
+//		img = new Texture("badlogic.jpg");
+		
+		gm = new GamestateManager(1/60, new Load());
+		gm.addState(new Game());
+		gm.addState(new Menu());
+		
+		gm.setState("game");
+		
+		gm.update();
 	}
 
 	@Override
 	public void render () {
-		Gdx.gl.glClearColor(1, 0, 0, 1);
-		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
-		batch.begin();
-		batch.draw(img, 0, 0);
-		batch.end();
+		// Update GamestateMachine
+		gm.update();
+	}
+	
+	@Override
+	public void pause() {
+		gm.pause();
+	}
+	
+	@Override
+	public void resume() {
+		gm.resume();
+	}
+	
+	@Override
+	public void resize(int width, int height) {
+		gm.resize(width, height);
+	}
+	
+	@Override
+	public void dispose() {
+		// Dispose GamestateMachine
+		gm.dispose();
 	}
 }
