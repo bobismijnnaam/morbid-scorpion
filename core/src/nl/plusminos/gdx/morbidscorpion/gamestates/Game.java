@@ -24,6 +24,8 @@ public class Game extends GamestateAdapter {
 	private SpriteBatch batch;
 	private OrthographicCamera camera;
 	
+	private String msg = "No touch yet";
+	
 	@Override
 	public void create() {
 		batch = new SpriteBatch();
@@ -36,8 +38,22 @@ public class Game extends GamestateAdapter {
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
 		
-		font.draw(batch, "Morbid Scorpion on the hunt", 100, 100);
+		font.draw(batch, msg, 100, 100);
 		
 		batch.end();
+	}
+	
+	@Override
+	public boolean zoom(float initialDistance, float distance) {
+		msg = "ZOOM | ID: " + initialDistance + " D: " + distance;
+		
+		return false;
+	}
+	
+	@Override
+	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
+		msg = "TU | X: " + screenX + " TY: " + screenY;
+		
+		return false;
 	}
 }
