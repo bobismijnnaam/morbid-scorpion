@@ -3,17 +3,9 @@ package nl.plusminos.gdx.morbidscorpion.minefield;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.badlogic.gdx.math.Vector2;
+import nl.plusminos.gdx.morbidscorpion.utils.GridDirection;
 
 public class MinefieldModel {
-	
-	enum Direction {
-		TOP,
-		RIGHT,
-		BOTTOM,
-		LEFT
-	}
-	
 	Mine[][] mines;
 	List<Mine> safePlaces;
 	private boolean gameOver = false;
@@ -35,7 +27,7 @@ public class MinefieldModel {
 	}
 	
 	public void initialize(int amountOfMines, int startX, int startY) {
-		Mine m;
+		Mine m, n;
 		
 		for (int i = 0; i < amountOfMines; i++) {
 			m = safePlaces.get((int) (Math.random() * safePlaces.size()));
@@ -44,10 +36,18 @@ public class MinefieldModel {
 			} else {
 				m.setMine();
 				safePlaces.remove(m);
+				
+				for (GridDirection dir : GridDirection.values()) {
+					n = getNeighbour(m.getX(), m.getY(), dir);
+					if (n != null) {
+						n.setSurrounding((byte) (n.getSurrounding() + 1));
+					}
+				}
 			}
 		}
 		
 		safePlaces = null;
+		
 	}
 	
 	public void toggleFlag(int x, int y) {
@@ -61,6 +61,7 @@ public class MinefieldModel {
 	public void uncover(int x, int y) {
 		List<Mine> toCheck = new ArrayList<Mine>(50);
 		Mine m = mines[x][y];
+		boolean[][] checked = new boolean[fieldWidth][fieldHeight];
 		
 		if (m.hasMine()) {
 			setGameOver();
@@ -69,10 +70,30 @@ public class MinefieldModel {
 			return;
 		}
 		
-		m.setUncovered();
+		toCheck.add(m);
+		checked[m.getX()][m.getY()] = true;
 		
+		Mine n;
 		while (toCheck.size() > 0) {
 			m = toCheck.get(0);
+			
+			if (m.hasMine()) {
+				System.out.println("[MinefieldModel] WARNING: Mine found during uncovering");
+			} else { 
+				m.setUncovered();
+				
+				if (m.getSurrounding() == 0) {
+					for (GridDirection dir : GridDirection.values()) {
+						n = getNeighbour(m.getX(), m.getY(), dir);
+						if (n != null && !n.hasNoCover() && !checked[n.getX()][n.getY()]) {
+							toCheck.add(n);
+							checked[n.getX()][n.getY()] = true;
+						}
+					}
+				}
+			}
+			
+			toCheck.remove(m);
 		}
 	}
 	
@@ -80,27 +101,100 @@ public class MinefieldModel {
 		gameOver = true;
 	}
 	
-	private Mine getNeighbour(int x, int y, Direction dir) {
+	private Mine getNeighbour(int x, int y, GridDirection dir) {
 		if (x < 0 || x >= fieldWidth || y < 0 || y > fieldHeight) {
 			throw new NullPointerException("Coordinate (" + x + ", " + y + ") is not on the field");
 		}
 		
 		switch (dir) {
 			case TOP:
+				if (y < fieldHeight - 1) {
+					return mines[x][y + 1];
+				}
+				break;
+			case RIGHT:
+				if (x < fieldWidth - 1) {
+					return mines[x + 1][y];
+				}
+				break;
+			case BOTTOM:
 				if (y > 0) {
 					return mines[x][y - 1];
 				}
 				break;
-			case RIGHT:
-				
-				break;
-			case BOTTOM:
-				break;
 			case LEFT:
+				if (x > 0) {
+					return mines[x - 1][y];
+				}
+				break;
+			case BOTTOMLEFT:
+				if (x > 0 && y > 0) {
+					return mines[x - 1][y - 1];
+				}
+				break;
+			case BOTTOMRIGHT:
+				if (x < fieldWidth - 1 && y > 0) {
+					return mines[x + 1][y - 1];
+				}
+				break;
+			case TOPLEFT:
+				if (x > 0 && y < fieldHeight - 1) {
+					return mines[x - 1][y + 1];
+				}
+				break;
+			case TOPRIGHT:
+				if (x < fieldWidth - 1 && y < fieldHeight - 1) {
+					return mines[x + 1][y + 1];
+				}
 				break;
 		}
 		
 		return null;
 	}
-
+	
+	public String toString() {
+		return toString("normal");
+	}
+	
+	public String toString(String mode) {
+		Mine m;	
+		String result = "";
+		for (int y = 0; y < fieldHeight; y++) {
+			for (int x = 0; x < fieldWidth; x++) {
+				m = mines[x][y];
+				if (m.hasNoCover()) {
+					if (m.hasMine()) {
+						result += "X";
+					} else if (m.getSurrounding() > 0) {
+						result += "" + m.getSurrounding();
+					} else {
+						result += " ";
+					}
+				} else {
+					if (m.hasFlag()) {
+						result += "F";
+					} else if (m.hasMine() && mode.equals("mines")) {
+						result += "M";
+					} else if (m.getSurrounding() > 0 && mode.equals("weights")) { 
+						result += "" + m.getSurrounding();
+					} else {
+						result += "O";
+					}
+				}
+			}
+			
+			result += "\n";
+		}
+		
+		return result;
+	}
+	
+	public static void main(String[] args) {
+		MinefieldModel mfm = new MinefieldModel(100, 100);
+		mfm.initialize(60, 2, 2);
+		System.out.println(mfm.toString("mines") + "\n");
+		
+		mfm.uncover(2, 2);
+		System.out.println(mfm.toString() + "\n");
+	}
 }
