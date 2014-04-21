@@ -323,9 +323,5 @@ public class GamestateManager implements ApplicationListener {
 		for (Gamestate gs : stateStack) {
 			gs.dispose();
 		}
-		
-		for (Entry<String, Gamestate> gameState : stateRepo.entrySet()) {
-			gameState.getValue().dispose();
-		}
 	}
 }
