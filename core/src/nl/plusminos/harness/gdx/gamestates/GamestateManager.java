@@ -314,18 +314,12 @@ public class GamestateManager implements ApplicationListener {
 	}
 	
 	/**
-	 * Disposes of all the active gamestates and gamestates in the repo. If the client has
-	 * been programming properly the constructers haven't been loading stuff (and thus disposing repo states
-	 * is redundant) but people are stupid these days.
+	 * Disposes of all the active gamestates.
 	 */
 	@Override
 	public void dispose() {
 		for (Gamestate gs : stateStack) {
 			gs.dispose();
-		}
-		
-		for (Entry<String, Gamestate> gameState : stateRepo.entrySet()) {
-			gameState.getValue().dispose();
 		}
 	}
 }
