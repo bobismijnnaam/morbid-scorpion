@@ -1,5 +1,6 @@
 package nl.plusminos.gdx.morbidscorpion.gamestates;
 
+import nl.plusminos.gdx.morbidscorpion.utils.PinchableCamera;
 import nl.plusminos.harness.gdx.gamestates.Gamestate;
 import nl.plusminos.harness.gdx.gamestates.GamestateAdapter;
 
@@ -10,6 +11,7 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 
 public class Game extends GamestateAdapter {
 
@@ -25,7 +27,7 @@ public class Game extends GamestateAdapter {
 	
 	private BitmapFont font = new BitmapFont();
 	private SpriteBatch batch;
-	private OrthographicCamera camera;
+	private PinchableCamera camera;
 	
 	private String msg = "No touch yet";
 	
@@ -39,20 +41,22 @@ public class Game extends GamestateAdapter {
 	@Override
 	public void create() {
 		batch = new SpriteBatch();
-		camera = new OrthographicCamera();
+		camera = new PinchableCamera();
 		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		
 		logoTexture = new Texture(Gdx.files.internal("logo.png"));
 		logoSprite = new Sprite(logoTexture);
-		logoSprite.setPosition(0, 0);
 		logoSprite.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
-		startSize = logoSprite.getWidth();
+		
+		msg = "Camera.near := " + camera.far;
 	}
 	
 	@Override
 	public void render() {
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
+		
+		logoSprite.draw(batch);
 		
 		font.draw(batch, msg, 100, 100);
 		
@@ -68,75 +72,26 @@ public class Game extends GamestateAdapter {
 	
 	@Override
 	public boolean zoom(float initialDistance, float distance) {
-//		msg = "ZOOM | ID: " + initialDistance + " D: " + distance;
-		
-//		if (!zooming) {
-//			zooming = true;
-//			startSize = logoSprite.getWidth();
-//		}
-//		
-//		if (zooming) {
-//			float factor = distance / initialDistance;
-//			logoSprite.setSize(startSize * factor, startSize * factor);
-//		}
 		
 		return false;
 	}
 	
 	@Override
-	public boolean pinch(Vector2 initialPointer1, Vector2 initialPointer2,
-			Vector2 pointer1, Vector2 pointer2) {
-		
-		if (!zooming) {
-			zooming = true;
-			startSize = logoSprite.getWidth();
-			previousPosition = initialPointer1.cpy();
-			
-			startOffset = initialPointer1.cpy();
-			startOffset.y = Gdx.graphics.getHeight() - startOffset.y;
-			startOffset.x -= logoSprite.getX();
-			startOffset.y -= logoSprite.getY();
-		}
-		
-		float initialDistance = initialPointer1.dst(initialPointer2);
-		float distance = pointer1.dst(pointer2);
-		
-		float factor = distance / initialDistance;
-		logoSprite.setSize(startSize * factor, startSize * factor);
-		
-		Vector2 p1 = pointer1.cpy();
-		p1.y = Gdx.graphics.getHeight() - p1.y;
-		
-		Vector2 currentOffset = startOffset.cpy().scl(factor);
-		Vector2 newPos = p1.cpy().sub(currentOffset);
-		logoSprite.setPosition(newPos.x, newPos.y);
-		
-		msg = "IV: " + initialPointer1.toString() + " | CV: " + pointer1.toString();
+	public boolean pinch (Vector2 initialPointer1, Vector2 initialPointer2, Vector2 pointer1, Vector2 pointer2) {
+		camera.pinch(initialPointer1, initialPointer2, pointer1, pointer2);
 		
 		return false;
 	}
 	
 	@Override
-	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
-//		startX = screenX;
-//		startY = Gdx.graphics.getHeight() - screenY;
-//		
-//		chosenPointer = pointer;
+	public boolean longPress (float x, float y) {
+		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		
 		return false;
 	}
 	
 	@Override
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
-//		if (pointer == chosenPointer) {
-//			float dx = screenX - startX;
-//			float dy = (Gdx.graphics.getHeight() - screenY) - startY;
-//			
-//			logoSprite.setPosition(logoSprite.getX() + dx, logoSprite.getY() + dy);
-//			
-//			startX = screenX;
-//			startY = Gdx.graphics.getHeight() - screenY;
-//		}
 		
 		return false;
 	}
@@ -144,9 +99,7 @@ public class Game extends GamestateAdapter {
 	
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		msg = "TU | X: " + screenX + " TY: " + screenY;
-		
-		zooming = false;
+		camera.touchUp();
 		
 		return false;
 	}
