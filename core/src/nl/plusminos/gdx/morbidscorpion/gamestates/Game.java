@@ -5,7 +5,6 @@ import nl.plusminos.harness.gdx.gamestates.Gamestate;
 import nl.plusminos.harness.gdx.gamestates.GamestateAdapter;
 
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
@@ -27,22 +26,19 @@ public class Game extends GamestateAdapter {
 	
 	private BitmapFont font = new BitmapFont();
 	private SpriteBatch batch;
-	private PinchableCamera camera;
+	private PinchableCamera camera; 
 	
 	private String msg = "No touch yet";
 	
 	private Texture logoTexture;
 	private Sprite logoSprite;
-	private boolean zooming = false;
-	private float startSize;
-	private Vector2 previousPosition;
-	private Vector2 startOffset;
 	
 	@Override
 	public void create() {
 		batch = new SpriteBatch();
 		camera = new PinchableCamera();
 		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		camera.setDraggable(true);
 		
 		logoTexture = new Texture(Gdx.files.internal("logo.png"));
 		logoSprite = new Sprite(logoTexture);
@@ -59,8 +55,6 @@ public class Game extends GamestateAdapter {
 		logoSprite.draw(batch);
 		
 		font.draw(batch, msg, 100, 100);
-		
-		logoSprite.draw(batch);
 		
 		batch.end();
 	}
@@ -85,13 +79,20 @@ public class Game extends GamestateAdapter {
 	
 	@Override
 	public boolean longPress (float x, float y) {
-		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+		
+		return false;
+	}
+	
+	@Override
+	public boolean touchDown (int screenX, int screenY, int pointer, int button) {
+		camera.touchDown(screenX, screenY, pointer, button);
 		
 		return false;
 	}
 	
 	@Override
 	public boolean touchDragged(int screenX, int screenY, int pointer) {
+		camera.touchDragged(screenX, screenY, pointer);
 		
 		return false;
 	}
@@ -99,7 +100,7 @@ public class Game extends GamestateAdapter {
 	
 	@Override
 	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		camera.touchUp();
+		camera.touchUp(screenX, screenY, pointer, button);
 		
 		return false;
 	}
