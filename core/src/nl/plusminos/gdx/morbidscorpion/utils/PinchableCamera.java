@@ -16,14 +16,17 @@ public class PinchableCamera extends OrthographicCamera {
 		super(viewportWidth, viewportHeight);
 	}
 	
-	boolean zooming = false;
-	float startWidth, startHeight;
-	Vector3 pointer1Projected;
-	float initialDistance;
+	private boolean zooming = false;
+	private float startWidth, startHeight;
+	private Vector3 pointer1Projected;
+	private float initialDistance;
 	
-	boolean draggable = false;
-	int lockedPointer = -1;
-	Vector3 pointerProjected;
+	private boolean draggable = false;
+	private int lockedPointer = -1;
+	private Vector3 pointerProjected;
+	
+	public final Vector2 minSize = new Vector2(-1, -1);
+	public final Vector2 maxSize = new Vector2(-1, -1);
 	
 	public void pinch (Vector2 initialPointer1, Vector2 initialPointer2, Vector2 pointer1, Vector2 pointer2) {
 		if (!zooming) {
@@ -34,8 +37,6 @@ public class PinchableCamera extends OrthographicCamera {
 			pointer1Projected = unproject(new Vector3(initialPointer1, 0.0f));
 			
 			initialDistance = initialPointer1.dst(initialPointer2);
-			
-//			lockedPointer = 0;
 		}
 		
 		float distance = pointer1.dst(pointer2);
@@ -43,6 +44,8 @@ public class PinchableCamera extends OrthographicCamera {
 		
 		viewportWidth = startWidth * factor;
 		viewportHeight = startHeight * factor;
+		
+		enforceSizeConstraint(false);
 		
 		Vector2 dPointer = pointer1.cpy();
 		dPointer.y = Gdx.graphics.getHeight() - pointer1.y;
@@ -60,6 +63,33 @@ public class PinchableCamera extends OrthographicCamera {
 	
 	public void setDraggable(boolean p) {
 		draggable = p;
+	}
+	
+	/**
+	 * Presumes aspect ratio is meant to be maintained
+	 * @param doUpdate
+	 */
+	public void enforceSizeConstraint(boolean doUpdate) {
+		if (minSize.x != -1 && viewportWidth < minSize.x) {
+			viewportWidth = minSize.x;
+			viewportHeight = minSize.x * Gdx.graphics.getHeight() / Gdx.graphics.getWidth();
+		}
+		if (minSize.y != -1 && viewportHeight < minSize.y) {
+			viewportHeight = minSize.y;
+			viewportWidth = minSize.y * Gdx.graphics.getWidth() / Gdx.graphics.getHeight();
+		}
+		if (maxSize.x != -1 && viewportWidth > maxSize.x) {
+			viewportWidth = maxSize.x;
+			viewportHeight = maxSize.x * Gdx.graphics.getHeight() / Gdx.graphics.getWidth();
+		}
+		if (maxSize.y != -1 && viewportHeight > maxSize.y) {
+			viewportHeight = maxSize.y;
+			viewportWidth = maxSize.y * Gdx.graphics.getWidth() / Gdx.graphics.getHeight();
+		}
+		
+		if (doUpdate) {
+			update();
+		}
 	}
 	
 	public boolean touchDown (int screenX, int screenY, int pointer, int button) {

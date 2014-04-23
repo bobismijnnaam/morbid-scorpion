@@ -49,6 +49,14 @@ public class Mine {
 		settings = (byte) (settings & 253);
 	}
 	
+	public void toggleFlag() {
+		if (hasFlag()) {
+			unsetFlagged();
+		} else {
+			setFlagged();
+		}
+	}
+	
 	public void setUncovered() {
 		settings = (byte) (settings | 4);
 	}

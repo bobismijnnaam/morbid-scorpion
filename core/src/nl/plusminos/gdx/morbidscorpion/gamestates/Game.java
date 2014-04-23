@@ -35,13 +35,16 @@ public class Game extends GamestateAdapter {
 	@Override
 	public void create() {
 		batch = new SpriteBatch();
+		
 		camera = new PinchableCamera();
 		camera.setToOrtho(false, Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		camera.setDraggable(true);
+		camera.minSize.y = 36;
+		camera.maxSize.y = 128;
+		camera.enforceSizeConstraint(true);
 		
 		logoTexture = new Texture(Gdx.files.internal("logo.png"));
 		logoSprite = new Sprite(logoTexture);
-		logoSprite.setSize(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
 		
 		msg = "Camera.near := " + camera.far;
 	}
