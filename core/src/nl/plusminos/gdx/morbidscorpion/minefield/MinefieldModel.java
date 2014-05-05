@@ -51,24 +51,55 @@ public class MinefieldModel {
 	}
 	
 	public void toggleFlag(int x, int y) {
-		if (mines[x][y].hasFlag()) {
-			mines[x][y].unsetFlagged();
-		} else {
-			mines[x][y].setFlagged();
-		}
+		mines[x][y].toggleFlag();
 	}
 	
 	public void uncover(int x, int y) {
-		List<Mine> toCheck = new ArrayList<Mine>(50);
 		Mine m = mines[x][y];
-		boolean[][] checked = new boolean[fieldWidth][fieldHeight];
 		
 		if (m.hasMine()) {
 			setGameOver();
 			return;
-		} else if (m.hasFlag() || m.hasNoCover()) {
+		} else if (m.hasFlag()) {
 			return;
+		} else if (m.hasNoCover() && m.getSurrounding() > 0) {
+			groupUncover(m);
+		} else if (m.hasNoCover()) {
+			return;
+		} else {
+			doDijkstra(m);
 		}
+	}
+	
+	private void groupUncover(Mine m) {
+		int amountOfFlags = 0;
+		Mine n;
+		
+		for (GridDirection dir : GridDirection.values()) {
+			n = getNeighbour(m.getX(), m.getY(), dir);
+			if (n.hasFlag()) {
+				amountOfFlags++;
+			}
+		}
+		
+		if (amountOfFlags == m.getSurrounding()) {
+			for (GridDirection dir : GridDirection.values()) {
+				n = getNeighbour(m.getX(), m.getY(), dir);
+				if (!n.hasFlag() && n.hasMine()) {
+					setGameOver();
+					break;
+				} else {
+					if (!n.hasFlag()) {
+						n.setUncovered();
+					}
+				}
+			}
+		}
+	}
+	
+	private void doDijkstra(Mine m) {
+		List<Mine> toCheck = new ArrayList<Mine>(50);
+		boolean[][] checked = new boolean[fieldWidth][fieldHeight];
 		
 		toCheck.add(m);
 		checked[m.getX()][m.getY()] = true;
@@ -77,18 +108,14 @@ public class MinefieldModel {
 		while (toCheck.size() > 0) {
 			m = toCheck.get(0);
 			
-			if (m.hasMine()) {
-				System.out.println("[MinefieldModel] WARNING: Mine found during uncovering");
-			} else { 
-				m.setUncovered();
-				
-				if (m.getSurrounding() == 0) {
-					for (GridDirection dir : GridDirection.values()) {
-						n = getNeighbour(m.getX(), m.getY(), dir);
-						if (n != null && !n.hasNoCover() && !checked[n.getX()][n.getY()]) {
-							toCheck.add(n);
-							checked[n.getX()][n.getY()] = true;
-						}
+			m.setUncovered();
+			
+			if (m.getSurrounding() == 0) {
+				for (GridDirection dir : GridDirection.values()) {
+					n = getNeighbour(m.getX(), m.getY(), dir);
+					if (n != null && !n.hasNoCover() && !checked[n.getX()][n.getY()]) {
+						toCheck.add(n);
+						checked[n.getX()][n.getY()] = true;
 					}
 				}
 			}
