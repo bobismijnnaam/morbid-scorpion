@@ -52,7 +52,7 @@ public class Game extends GamestateAdapter {
 		// Generate texture
 		fbo = new FrameBuffer(Format.RGBA8888, 1024, 1024, false);
 		fboRegion = new TextureRegion(fbo.getColorBufferTexture());
-		fboRegion.flip(false, false);
+//		fboRegion.flip(false, true);
 		
 		OrthographicCamera camera = new OrthographicCamera();
 		camera.setToOrtho(true, fbo.getWidth(), fbo.getHeight());
@@ -60,14 +60,11 @@ public class Game extends GamestateAdapter {
 		SpriteBatch batch = new SpriteBatch();
 		batch.setProjectionMatrix(camera.combined);
 		
-		BitmapFont bmf = Global.lekton.getFont(60);
-		bmf.setColor(Color.WHITE);
-		
 		fbo.begin();
 		batch.begin();
 		
-//		bmf.draw(batch, "0 1 2 3 4 5 6 7 8 9", 0, 0);
-		logoSprite.draw(batch);
+		Global.lekton.getFont(256).setColor(Color.valueOf("66D9EF"));
+		Global.lekton.getFont(256).draw(batch, "0 1 2 3", 0, 256); // Origin turns out to be top left... lol
 		
 		batch.end();
 		fbo.end();
@@ -80,13 +77,7 @@ public class Game extends GamestateAdapter {
 		batch.setProjectionMatrix(camera.combined);
 		batch.begin();
 		
-//		logoSprite.draw(batch);
-		
-		// font.draw(batch, msg, 100, 100);
-		
 		batch.draw(fboRegion, 0, 0);
-		
-//		Global.lekton.getFont(60).draw(batch, "TEST", 100, 100);
 		
 		batch.end();
 	}
