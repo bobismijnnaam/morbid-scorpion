@@ -1,31 +1,31 @@
 package nl.plusminos.harness.gdx.gamestates;
 
-import java.util.ArrayList;
+import java.util.EmptyStackException;
 import java.util.HashMap;
-import java.util.Map.Entry;
 
 import com.badlogic.gdx.ApplicationListener;
 import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.InputMultiplexer;
 import com.badlogic.gdx.graphics.GL20;
-import com.badlogic.gdx.input.GestureDetector;
+import com.badlogic.gdx.utils.Array;
 
-// TODO: Shader support
-// TODO: Comments!
 public class GamestateManager implements ApplicationListener {
-	
-	// Singleton variable
-	private static GamestateManager instance = null;
+	public class GamestateNotFoundException extends NullPointerException {
+		private static final long serialVersionUID = -4025872731854248080L;
+
+		public GamestateNotFoundException(String msg) {
+			super(msg);
+		}
+	}
 	
 	// Gamestate machine variables
-	private float fixedTimestep = 0; // To indicate time between logic frames - 0 for variable timestep
-	private String nextState = ""; // The next state to change to
-	private String pushedState = ""; // The state that should be pushed on top of the current state
-	private boolean popAState = false; // If a state should be popped off the stack
-	private float passedTime = 0; // The time since the last logic loop was started
+	private double fixedTimestep = 0; // To indicate time between logic frames - 0 for variable timestep
+	private double passedTime = 0; // The time since the last logic loop was started
+	private final String gamestatePackage;
+	private String stateClassName = "";
+	private StateAction action = StateAction.NONE;
 	
-	private ArrayList<Gamestate> stateStack = new ArrayList<Gamestate>(); // Stack of states
-	private HashMap<String, Gamestate> stateRepo = new HashMap<String, Gamestate>(); // All added states are saved here
+	private Array<Gamestate> stateStack = new Array<Gamestate>(); // Stack of states
+	
 	
 	/**
 	 * Initializes gamestate manager. At least one gamestate should be supplied. The first gamestate in the list
@@ -35,36 +35,17 @@ public class GamestateManager implements ApplicationListener {
 	 * @param camera The camera to use
 	 * @param gamestates Initial gamestates you want to set. You can also do this later with addState()
 	 */
-	public GamestateManager(float fixedTimestep, Gamestate...gamestates) {
-		if (instance == null) {
-			// Set timestep
-			this.fixedTimestep = fixedTimestep;
-			
-			// Add all gamestates to collection
-			for (Gamestate g : gamestates) {
-				stateRepo.put(g.getStateID(), g);
-			}
-			
-			// Check if enough states were added
-			if (gamestates.length == 0) {
-				throw new NullPointerException();
-			}
-			
-			// Set the starting state
-			setState(gamestates[0].getStateID());
-			
-			// Lastly, set the singleton instance
-			instance = this;
-		}
-	}
-	
-	/**
-	 * @return The Gamestate singleton instance
-	 */
-	public static GamestateManager get() {
-		if (instance == null) throw new NullPointerException();
+	public GamestateManager(float fixedTimestep, String gamestatePackage) {
+		// Set timestep
+		this.fixedTimestep = fixedTimestep;
 		
-		return instance;
+		// Save the package with gamestates
+		// Append "." if it's not there 
+		if (!gamestatePackage.endsWith(".")) {
+			this.gamestatePackage = gamestatePackage + ".";
+		} else {
+			this.gamestatePackage = gamestatePackage;
+		}
 	}
 	
 	/**
@@ -77,142 +58,114 @@ public class GamestateManager implements ApplicationListener {
 	}
 	
 	/**
-	 * Adds a state to the gamestate collection
-	 * @param newGamestate The gamestate to be added
+	 * To set an action for the gamestate machine if there is no target state involved
+	 * @param action The action to perform (POP, EXIT, NONE)
 	 */
-	public void addState(Gamestate newGamestate) {
-		stateRepo.put(newGamestate.getStateID(), newGamestate);
+	public void changeState(StateAction action) {
+		changeState(action, "");
 	}
 	
 	/**
-	 * Clears the stack of states, and then sets the next state
-	 * @param newStateID The next state to start
+	 * To set an action if there is a target state involved
+	 * @param action The action to perform (PUSH, SET)
+	 * @param state The state to target
 	 */
-	public void setState(String newStateID) {
-		// Check if EXIT was called
-		if (!nextState.equals("EXIT")) {
-			nextState = newStateID;
-		}
+	public void changeState(StateAction action, String state) {
+		stateClassName = state;
+		this.action = action;
 	}
 	
 	/**
-	 * Pushes a state on top of the stack
-	 * @param newStateID The state to be pushed on top of the stack
-	 */
-	public void pushState(String newStateID) {
-		pushedState = newStateID;
-	}
-	
-	/**
-	 * Pops one state off the stack
-	 */
-	public void popState() {
-		popAState = true;
-	}
-	
-	/**
-	 * Handles next states, pushed/popped states. First next states are handled, then pushed states and lastly
-	 * popped states are handled. If gamestates don't exist or there's only 1 state on the stack a NullPointerException
+	 * Handles next states, pushed/popped states. If gamestates don't exist or there's only 1 state on the stack a NullPointerException
 	 * will be thrown.
+	 * @throws GameStateNotFoundException if given state cannot be found in the given package
+	 * @throws EmptyStackException if the stack has only 1 state or less.
 	 */
 	private void changeStates() {
-		if (!nextState.equals("")) { // Check if a next state was set
-			if (nextState.equals("EXIT")) { // Exit if the set state is EXIT
-				Gdx.app.exit();
-			}
-			
-			// Retrieve a new instance of the next state
-			Gamestate startGamestate = stateRepo.get(nextState);
-			
-			// Dispose of all previous active states
-			for (Gamestate gs : stateStack) {
-				gs.dispose();
-			}
-			
-			if (startGamestate == null) { // If no gamestate was found with this ID, return an exception
-				throw new NullPointerException("Unknown state: " + nextState);
-			}else {
-				// Empty stack
+		boolean err = false;
+		
+		switch (action) {
+			case POP:
+				if (stateStack.size <= 1) {
+					throw new EmptyStackException();
+				}
+				
+				Gamestate popped = stateStack.pop();
+				popped.dispose();
+				
+				stateStack.peek().show();
+				setInputToCurrentState();
+				break;
+			case PUSH:
+				stateStack.peek().hide();
+				
+				Gamestate pushedState = null;
+				try {
+					pushedState = (Gamestate) Class.forName(gamestatePackage + stateClassName).newInstance();
+				} catch (InstantiationException e) {
+					err = true;
+				} catch (IllegalAccessException e) {
+					err = true;
+				} catch (ClassNotFoundException e) {
+					err = true;
+				} 
+				if (err) throw new GamestateNotFoundException(String.format("Gamestate %s could not be found in package %s", stateClassName, gamestatePackage));
+				
+				pushedState.create();
+				stateStack.add(pushedState);
+				setInputToCurrentState();
+				break;
+			case SET:
+				// Dispose of all previous active states
+				for (Gamestate gs : stateStack) {
+					gs.dispose();
+				}
 				stateStack.clear();
 				
-				// Add the new state & initialize it
-				stateStack.add(startGamestate.instantiate());
-				getState().create();
+				Gamestate nextState = null;
+				try {
+					nextState = (Gamestate) Class.forName(gamestatePackage + stateClassName).newInstance();
+				} catch (InstantiationException e) {
+					err = true;
+				} catch (IllegalAccessException e) {
+					err = true;
+				} catch (ClassNotFoundException e) {
+					err = true;
+				} 
+				if (err) throw new GamestateNotFoundException(String.format("Gamestate %s could not be found in package %s", stateClassName, gamestatePackage));
 				
-				// Set the input to that state
+				nextState.create();
+				stateStack.add(nextState);
 				setInputToCurrentState();
-				
-				// Reset the variable so it won't be added again
-				nextState = "";
-			}
+				break;
+			case EXIT:
+				Gdx.app.exit();
+				break;
+			case NONE:
+				// Move along please
+				break;
+			default:
+				// Idem
+				break;
+			
 		}
 		
-		if (!pushedState.equals("")) { // Check if a push state was set
-			getState().toBack(); // Notify top state of getting pushed to the background
-			
-			// Get a new instance of the pushed state
-			Gamestate newStateInstance = stateRepo.get(pushedState);
-			
-			if (newStateInstance == null) { // If the state was not found, throw an exception
-				throw new NullPointerException("Unknown state: " + pushedState);
-			} else {
-				
-				// Add the new state on top of the stack and initialize it
-				stateStack.add(newStateInstance.instantiate());
-				getState().create();
-				
-				// Set input to the current state
-				setInputToCurrentState();
-				
-				// Reset the variable so the state won't be pushed again
-				pushedState = "";
-			}
-		}
-		
-		if (popAState) { // Check if a state has to be popped
-			if (stateStack.size() <= 1) { // If there are 1 or less states left throw an exception
-				throw new NullPointerException("No more states left on stack");
-			} else {
-				// Retrieve and dispose the state, and remove it from the stack
-				Gamestate stateToPop = getState();
-				stateToPop.dispose();
-				stateStack.remove(stateStack.size() - 1);
-				
-				// Notify the back state that is has regained focus
-				getState().toFront();
-				
-				// Set the input to the current state
-				setInputToCurrentState();
-				
-				// Reset the variable so it won't pop another state
-				popAState = false;
-			}
-		}
+		action = StateAction.NONE;
+		stateClassName = "";
 	}
 	
 	/**
 	 * An internal function that sets the input to the topmost state
 	 */
-	private void setInputToCurrentState() {
-		InputMultiplexer multiplexer = new InputMultiplexer();
-		multiplexer.addProcessor(getState());
-		multiplexer.addProcessor(new GestureDetector(getState()));
-		
-		Gdx.input.setInputProcessor(multiplexer);
+	private void setInputToCurrentState() {		
+		Gdx.input.setInputProcessor(stateStack.peek());
 	}
 	
 	/**
 	 * @return The gamestate stack size
 	 */
 	public int getStackSize() {
-		return stateStack.size();
-	}
-	
-	/**
-	 * @return The active state
-	 */
-	private Gamestate getState() {
-		return stateStack.get(stateStack.size() - 1);
+		return stateStack.size;
 	}
 	
 	/**
@@ -228,7 +181,7 @@ public class GamestateManager implements ApplicationListener {
 	 */
 	@Override
 	public void resize(int width, int height) {
-		getState().resize(width, height);
+		stateStack.peek().resize(width, height);
 	}
 	
 	/**
@@ -243,24 +196,7 @@ public class GamestateManager implements ApplicationListener {
 		
 		if (fixedTimestep == 0) { // If timestep is variable just execute logic & render as often as possible
 			// Run the current gamestate's logic loop with variable timestep
-			getState().logic(Gdx.graphics.getDeltaTime());
-			
-			// Find out which state has transparency set to false.
-			// All states between and including that state and the active state
-			// have to be drawn, to create this overlay effect
-			int startState = 0;
-			for (int i = stateStack.size() - 1; i > -1; i--) {
-				if (!stateStack.get(i).isTransparent()) {
-					startState = i;
-					
-					break;
-				}
-			}
-			
-			// Draw all states from the bottom up
-			for (int i = startState; i < stateStack.size(); i++) {
-				stateStack.get(i).render();
-			}
+			stateStack.peek().logic(Gdx.graphics.getDeltaTime());
 		} else {
 			// This is the fixed update step, variable rendering game programming pattern
 			// More info here: http://gameprogrammingpatterns.com/game-loop.html
@@ -273,25 +209,25 @@ public class GamestateManager implements ApplicationListener {
 			while (passedTime > fixedTimestep) {
 				passedTime -= fixedTimestep;
 				
-				stateStack.get(stateStack.size() - 1).logic(fixedTimestep);
+				stateStack.peek().logic(fixedTimestep);
 			}
-			
-			// Find out which state has transparency set to false.
-			// All states between and including that state and the active state
-			// have to be drawn, to create this overlay effect
-			int startState = 0;
-			for (int i = stateStack.size() - 1; i > -1; i--) {
-				if (!stateStack.get(i).isTransparent()) {
-					startState = i;
-					
-					break;
-				}
+		}
+		
+		// Find out which state has transparency set to false.
+		// All states between and including that state and the active state
+		// have to be drawn, to create this overlay effect
+		int startState = 0;
+		for (int i = stateStack.size - 1; i > -1; i--) {
+			if (!stateStack.get(i).isTransparent()) {
+				startState = i;
+				
+				break;
 			}
-			
-			// Draw all states from the bottom up
-			for (int i = startState; i < stateStack.size(); i++) {
-				stateStack.get(i).render();
-			}
+		}
+		
+		// Draw all states from the bottom up
+		for (int i = startState; i < stateStack.size; i++) {
+			stateStack.get(i).render();
 		}
 	}
 	
@@ -301,7 +237,7 @@ public class GamestateManager implements ApplicationListener {
 	 */
 	@Override
 	public void pause() {
-		getState().pause();
+		stateStack.peek().pause();
 	}
 	
 	/**
@@ -310,7 +246,7 @@ public class GamestateManager implements ApplicationListener {
 	 */
 	@Override
 	public void resume() {
-		getState().resume();
+		stateStack.peek().resume();
 	}
 	
 	/**

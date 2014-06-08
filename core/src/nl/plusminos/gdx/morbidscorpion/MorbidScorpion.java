@@ -1,11 +1,11 @@
 package nl.plusminos.gdx.morbidscorpion;
 
-import nl.plusminos.gdx.morbidscorpion.gamestates.Game;
-import nl.plusminos.gdx.morbidscorpion.gamestates.Load;
-import nl.plusminos.gdx.morbidscorpion.gamestates.Menu;
 import nl.plusminos.harness.gdx.gamestates.GamestateManager;
+import nl.plusminos.harness.gdx.gamestates.StateAction;
 
+import com.badlogic.gdx.Application;
 import com.badlogic.gdx.ApplicationAdapter;
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 
@@ -17,16 +17,13 @@ public class MorbidScorpion extends ApplicationAdapter {
 	
 	@Override
 	public void create () {
-//		batch = new SpriteBatch();
-//		img = new Texture("badlogic.jpg");
+		gm = new GamestateManager(1/60, "nl.plusminos.gdx.morbidscorpion.gamestates");
 		
-		gm = new GamestateManager(1/60, new Load());
-		gm.addState(new Game());
-		gm.addState(new Menu());
-		
-		gm.setState("game");
+		gm.changeState(StateAction.SET, "Game");
 		
 		gm.update();
+		
+		Gdx.app.setLogLevel(Application.LOG_DEBUG);
 	}
 
 	@Override

@@ -1,31 +1,20 @@
 package nl.plusminos.gdx.morbidscorpion.gamestates;
 
 import nl.plusminos.gdx.morbidscorpion.utils.PinchableCamera;
-import nl.plusminos.harness.gdx.gamestates.Gamestate;
 import nl.plusminos.harness.gdx.gamestates.GamestateAdapter;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
-import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.input.GestureDetector;
 
 public class Game extends GamestateAdapter {
-
-	@Override
-	public Gamestate instantiate() {
-		return new Game();
-	}
-
-	@Override
-	public String getStateID() {
-		return "game";
-	}
-	
 	private BitmapFont font = new BitmapFont();
 	private SpriteBatch batch;
-	private PinchableCamera camera; 
+	private PinchableCamera camera;
 	
 	private String msg = "No touch yet";
 	
@@ -47,6 +36,9 @@ public class Game extends GamestateAdapter {
 		logoSprite = new Sprite(logoTexture);
 		
 		msg = "Camera.near := " + camera.far;
+		
+		addProcessor(new GestureDetector(camera));
+		addProcessor(camera);
 	}
 	
 	@Override
@@ -64,46 +56,5 @@ public class Game extends GamestateAdapter {
 	@Override
 	public void dispose() {
 		logoTexture.dispose();
-	}
-	
-	@Override
-	public boolean zoom(float initialDistance, float distance) {
-		
-		return false;
-	}
-	
-	@Override
-	public boolean pinch (Vector2 initialPointer1, Vector2 initialPointer2, Vector2 pointer1, Vector2 pointer2) {
-		camera.pinch(initialPointer1, initialPointer2, pointer1, pointer2);
-		
-		return false;
-	}
-	
-	@Override
-	public boolean longPress (float x, float y) {
-		
-		return false;
-	}
-	
-	@Override
-	public boolean touchDown (int screenX, int screenY, int pointer, int button) {
-		camera.touchDown(screenX, screenY, pointer, button);
-		
-		return false;
-	}
-	
-	@Override
-	public boolean touchDragged(int screenX, int screenY, int pointer) {
-		camera.touchDragged(screenX, screenY, pointer);
-		
-		return false;
-	}
-
-	
-	@Override
-	public boolean touchUp(int screenX, int screenY, int pointer, int button) {
-		camera.touchUp(screenX, screenY, pointer, button);
-		
-		return false;
 	}
 }

@@ -5,14 +5,4 @@ import nl.plusminos.harness.gdx.gamestates.GamestateAdapter;
 
 public class Load extends GamestateAdapter {
 
-	@Override
-	public Gamestate instantiate() {
-		return new Load();
-	}
-
-	@Override
-	public String getStateID() {
-		return "load";
-	}
-
 }

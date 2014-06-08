@@ -1,9 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry exported="true" kind="src" path="/morbid-scorpion-core"/>
-	<classpathentry exported="true" kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER"/>
-	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry exported="true" kind="con" path="org.springsource.ide.eclipse.gradle.classpathcontainer"/>
 	<classpathentry kind="output" path="war/WEB-INF/classes"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER" exported="true"/>
+	<classpathentry kind="con" path="com.google.gwt.eclipse.core.GWT_CONTAINER" exported="true"/>
+	<classpathentry kind="src" path="/morbid-scorpion-core" exported="true"/>
+	<classpathentry sourcepath="C:/Users/Bob/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx-backend-gwt/1.1.1-SNAPSHOT/a0b052c4c4a78237ba5fb9caa710944d53b2bd28/gdx-backend-gwt-1.1.1-SNAPSHOT-sources.jar" kind="lib" path="C:/Users/Bob/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx-backend-gwt/1.1.1-SNAPSHOT/d2043e62952b51d73b0e90db3f0dbe82e4fe6403/gdx-backend-gwt-1.1.1-SNAPSHOT.jar" exported="true"/>
+	<classpathentry kind="lib" path="C:/Users/Bob/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx-backend-gwt/1.1.1-SNAPSHOT/a0b052c4c4a78237ba5fb9caa710944d53b2bd28/gdx-backend-gwt-1.1.1-SNAPSHOT-sources.jar" exported="true"/>
+	<classpathentry kind="lib" path="C:/Users/Bob/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx/1.1.1-SNAPSHOT/cb45c28e7a96bb38f09acaf342ceffffcf9aa966/gdx-1.1.1-SNAPSHOT-sources.jar" exported="true"/>
+	<classpathentry sourcepath="C:/Users/Bob/.gradle/caches/modules-2/files-2.1/com.google.gwt/gwt-servlet/2.6.0/7a59cc91e16f255d22b692dcc5839d3eb1d606c6/gwt-servlet-2.6.0-sources.jar" kind="lib" path="C:/Users/Bob/.gradle/caches/modules-2/files-2.1/com.google.gwt/gwt-servlet/2.6.0/d1e40c23bf78192482ee76c93619a10b4ea649f7/gwt-servlet-2.6.0.jar" exported="true"/>
+	<classpathentry sourcepath="C:/Users/Bob/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx/1.1.1-SNAPSHOT/cb45c28e7a96bb38f09acaf342ceffffcf9aa966/gdx-1.1.1-SNAPSHOT-sources.jar" kind="lib" path="C:/Users/Bob/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx/1.1.1-SNAPSHOT/be29388797499d6240dcc2a5bef66bc2488c2d0f/gdx-1.1.1-SNAPSHOT.jar" exported="true"/>
+	<classpathentry sourcepath="C:/Users/Bob/.gradle/caches/modules-2/files-2.1/com.google.gwt/gwt-codeserver/2.6.0/9be1bd733a55fd4c2cc42b7d377dc9a4296e2d64/gwt-codeserver-2.6.0-sources.jar" kind="lib" path="C:/Users/Bob/.gradle/caches/modules-2/files-2.1/com.google.gwt/gwt-codeserver/2.6.0/c88f4d9a43a8161317a77c721a75aa3a78952e37/gwt-codeserver-2.6.0.jar" exported="true"/>
 </classpath>
