@@ -1,6 +1,6 @@
 package nl.plusminos.gdx.morbidscorpion.minefield;
 
-public class Mine {
+public class Cell {
 	
 	// FORMAT:
 	// First bit: whether it has a mine
@@ -10,12 +10,12 @@ public class Mine {
 	private byte settings = 0;
 	private int x, y;
 
-	public Mine(int x, int y) {
+	public Cell(int x, int y) {
 		this.x = x;
 		this.y = y;
 	}
 	
-	public Mine(int x, int y, boolean mine, boolean flagged, boolean uncovered, byte surrounding) {
+	public Cell(int x, int y, boolean mine, boolean flagged, boolean uncovered, byte surrounding) {
 		if (surrounding > 8) {
 			throw new NullPointerException("Maximum amount of mines around a position is 8");
 		}
@@ -97,27 +97,37 @@ public class Mine {
 		return y;
 	}
 	
+	@Override
+	public boolean equals(Object other) {
+		if (other instanceof Cell) {
+			Cell otherMine = (Cell) other;
+			return otherMine.x == x && otherMine.y == y;
+		} else {
+			return false;
+		}
+	}
+	
 	/**
 	 * (Almost!) useless test routine
 	 */
 	public static void main(String[] args) {
-		Mine m = new Mine(0, 0);
+		Cell m = new Cell(0, 0);
 		m.setMine();
-		Mine.testAssert(m.hasMine(), "Mine", "True", ""+m.hasMine());
+		Cell.testAssert(m.hasMine(), "Mine", "True", ""+m.hasMine());
 		
 		m.unsetMine();
-		Mine.testAssert(!m.hasMine(), "Unmine", "False", ""+m.hasMine());
+		Cell.testAssert(!m.hasMine(), "Unmine", "False", ""+m.hasMine());
 		
 		m.setFlagged();
-		Mine.testAssert(m.hasFlag(), "Flag", "True", ""+m.hasFlag());
+		Cell.testAssert(m.hasFlag(), "Flag", "True", ""+m.hasFlag());
 		
 		m.unsetFlagged();
-		Mine.testAssert(!m.hasFlag(), "Unflag", "False", ""+m.hasFlag());
+		Cell.testAssert(!m.hasFlag(), "Unflag", "False", ""+m.hasFlag());
 		
 		m.setSurrounding((byte) 5);
 		m.setFlagged();
 		m.setUncovered();
-		Mine.testAssert(m.getSurrounding() == 5 && m.hasFlag() && m.hasNoCover() && !m.hasMine(), "Usecase", "True", "False");
+		Cell.testAssert(m.getSurrounding() == 5 && m.hasFlag() && m.hasNoCover() && !m.hasMine(), "Usecase", "True", "False");
 		
 	}
 	

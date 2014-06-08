@@ -1,24 +1,23 @@
 package nl.plusminos.gdx.morbidscorpion.minefield;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import nl.plusminos.gdx.morbidscorpion.utils.GridDirection;
 
+import com.badlogic.gdx.utils.Array;
+
 public class MinefieldModel {
-	Mine[][] mines;
-	List<Mine> safePlaces;
+	Cell[][] cells;
+	Array<Cell> safeCells;
 	private boolean gameOver = false;
 	int fieldWidth, fieldHeight;
 	
 	public MinefieldModel(int width, int height) {
-		mines = new Mine[width][height];
-		safePlaces = new ArrayList<Mine>(width * height);
+		cells = new Cell[width][height];
+		safeCells = new Array<Cell>(width * height);
 		
 		for (int x = 0; x < width; x++) {
 			for (int y = 0; y < height; y++) {
-				mines[x][y] = new Mine(x, y);
-				safePlaces.add(mines[x][y]);
+				cells[x][y] = new Cell(x, y);
+				safeCells.add(cells[x][y]);
 			}
 		}
 		
@@ -27,100 +26,94 @@ public class MinefieldModel {
 	}
 	
 	public void initialize(int amountOfMines, int startX, int startY) {
-		Mine m, n;
+		Cell m, n;
 		
+		// Remove start position from possible places
+		Cell startMine = new Cell(startX, startY);
+		safeCells.removeValue(startMine, false); // false means use .equals for comparison
+		
+		// Place a mine at a random position and increase te minecounter of surrounding mines
 		for (int i = 0; i < amountOfMines; i++) {
-			m = safePlaces.get((int) (Math.random() * safePlaces.size()));
-			if (m.getX() == startX && m.getY() == startY) {
-				safePlaces.remove(m);
-			} else {
-				m.setMine();
-				safePlaces.remove(m);
-				
-				for (GridDirection dir : GridDirection.values()) {
-					n = getNeighbour(m.getX(), m.getY(), dir);
-					if (n != null) {
-						n.setSurrounding((byte) (n.getSurrounding() + 1));
-					}
+			int pickedCellIndex = (int) (Math.random() * safeCells.size);
+			m = safeCells.removeIndex(pickedCellIndex);
+			m.setMine();
+			
+			for (GridDirection dir : GridDirection.values()) {
+				n = getNeighbour(m.getX(), m.getY(), dir);
+				if (n != null) {
+					n.setSurrounding((byte) (n.getSurrounding() + 1));
 				}
 			}
 		}
 		
-		safePlaces = null;
-		
+		// Disable safeplaces array
+		safeCells = null;
 	}
 	
 	public void toggleFlag(int x, int y) {
-		mines[x][y].toggleFlag();
+		cells[x][y].toggleFlag();
 	}
 	
-	public void uncover(int x, int y) {
-		Mine m = mines[x][y];
+	public void uncover(int x, int y, boolean allowSectorUncover) {
+		Cell c = cells[x][y];
 		
-		if (m.hasMine()) {
+		if (c.hasMine()) {
 			setGameOver();
 			return;
-		} else if (m.hasFlag()) {
+		} else if (c.hasFlag()) {
 			return;
-		} else if (m.hasNoCover() && m.getSurrounding() > 0) {
-			groupUncover(m);
-		} else if (m.hasNoCover()) {
+		} else if (c.hasNoCover() && c.getSurrounding() > 0 && allowSectorUncover) {
+			uncoverSector(c);
+		} else if (c.hasNoCover()) {
 			return;
 		} else {
-			doDijkstra(m);
+			doDijkstra(c);
 		}
 	}
 	
-	private void groupUncover(Mine m) {
+	private void uncoverSector(Cell c) {
 		int amountOfFlags = 0;
-		Mine n;
+		Cell cc;
 		
 		for (GridDirection dir : GridDirection.values()) {
-			n = getNeighbour(m.getX(), m.getY(), dir);
-			if (n.hasFlag()) {
+			cc = getNeighbour(c.getX(), c.getY(), dir);
+			if (cc.hasFlag()) {
 				amountOfFlags++;
 			}
 		}
 		
-		if (amountOfFlags == m.getSurrounding()) {
+		if (amountOfFlags == c.getSurrounding()) {
 			for (GridDirection dir : GridDirection.values()) {
-				n = getNeighbour(m.getX(), m.getY(), dir);
-				if (!n.hasFlag() && n.hasMine()) {
-					setGameOver();
-					break;
-				} else {
-					if (!n.hasFlag()) {
-						n.setUncovered();
-					}
-				}
+				cc = getNeighbour(c.getX(), c.getY(), dir);
+				uncover(cc.getX(), cc.getY(), false);
 			}
 		}
 	}
 	
-	private void doDijkstra(Mine m) {
-		List<Mine> toCheck = new ArrayList<Mine>(50);
+	private void doDijkstra(Cell c) {
+		Array<Cell> toCheck = new Array<Cell>(50);
 		boolean[][] checked = new boolean[fieldWidth][fieldHeight];
 		
-		toCheck.add(m);
-		checked[m.getX()][m.getY()] = true;
+		toCheck.add(c);
+		checked[c.getX()][c.getY()] = true;
 		
-		Mine n;
-		while (toCheck.size() > 0) {
-			m = toCheck.get(0);
+		Cell cc;
+		while (toCheck.size > 0) {
+			c = toCheck.get(0);
 			
-			m.setUncovered();
+			c.setUncovered();
 			
-			if (m.getSurrounding() == 0) {
+			if (c.getSurrounding() == 0) {
 				for (GridDirection dir : GridDirection.values()) {
-					n = getNeighbour(m.getX(), m.getY(), dir);
-					if (n != null && !n.hasNoCover() && !checked[n.getX()][n.getY()]) {
-						toCheck.add(n);
-						checked[n.getX()][n.getY()] = true;
+					cc = getNeighbour(c.getX(), c.getY(), dir);
+					if (cc != null && !cc.hasNoCover() && !checked[cc.getX()][cc.getY()]) {
+						toCheck.add(cc);
+						checked[cc.getX()][cc.getY()] = true;
 					}
 				}
 			}
 			
-			toCheck.remove(m);
+			toCheck.removeValue(c, false);
 		}
 	}
 	
@@ -128,7 +121,7 @@ public class MinefieldModel {
 		gameOver = true;
 	}
 	
-	private Mine getNeighbour(int x, int y, GridDirection dir) {
+	private Cell getNeighbour(int x, int y, GridDirection dir) {
 		if (x < 0 || x >= fieldWidth || y < 0 || y > fieldHeight) {
 			throw new NullPointerException("Coordinate (" + x + ", " + y + ") is not on the field");
 		}
@@ -136,42 +129,42 @@ public class MinefieldModel {
 		switch (dir) {
 			case TOP:
 				if (y < fieldHeight - 1) {
-					return mines[x][y + 1];
+					return cells[x][y + 1];
 				}
 				break;
 			case RIGHT:
 				if (x < fieldWidth - 1) {
-					return mines[x + 1][y];
+					return cells[x + 1][y];
 				}
 				break;
 			case BOTTOM:
 				if (y > 0) {
-					return mines[x][y - 1];
+					return cells[x][y - 1];
 				}
 				break;
 			case LEFT:
 				if (x > 0) {
-					return mines[x - 1][y];
+					return cells[x - 1][y];
 				}
 				break;
 			case BOTTOMLEFT:
 				if (x > 0 && y > 0) {
-					return mines[x - 1][y - 1];
+					return cells[x - 1][y - 1];
 				}
 				break;
 			case BOTTOMRIGHT:
 				if (x < fieldWidth - 1 && y > 0) {
-					return mines[x + 1][y - 1];
+					return cells[x + 1][y - 1];
 				}
 				break;
 			case TOPLEFT:
 				if (x > 0 && y < fieldHeight - 1) {
-					return mines[x - 1][y + 1];
+					return cells[x - 1][y + 1];
 				}
 				break;
 			case TOPRIGHT:
 				if (x < fieldWidth - 1 && y < fieldHeight - 1) {
-					return mines[x + 1][y + 1];
+					return cells[x + 1][y + 1];
 				}
 				break;
 		}
@@ -179,16 +172,24 @@ public class MinefieldModel {
 		return null;
 	}
 	
+	public int getWidth() {
+		return fieldWidth;
+	}
+	
+	public int getHeight() {
+		return fieldHeight;
+	}
+	
 	public String toString() {
 		return toString("normal");
 	}
 	
 	public String toString(String mode) {
-		Mine m;	
+		Cell m;	
 		String result = "";
 		for (int y = 0; y < fieldHeight; y++) {
 			for (int x = 0; x < fieldWidth; x++) {
-				m = mines[x][y];
+				m = cells[x][y];
 				if (m.hasNoCover()) {
 					if (m.hasMine()) {
 						result += "X";
@@ -221,7 +222,7 @@ public class MinefieldModel {
 		mfm.initialize(60, 2, 2);
 		System.out.println(mfm.toString("mines") + "\n");
 		
-		mfm.uncover(2, 2);
+		mfm.uncover(2, 2, true);
 		System.out.println(mfm.toString() + "\n");
 	}
 }

@@ -4,4 +4,5 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER" exported="true"/>
 	<classpathentry sourcepath="C:/Users/Bob/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx/1.1.1-SNAPSHOT/cb45c28e7a96bb38f09acaf342ceffffcf9aa966/gdx-1.1.1-SNAPSHOT-sources.jar" kind="lib" path="C:/Users/Bob/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx/1.1.1-SNAPSHOT/be29388797499d6240dcc2a5bef66bc2488c2d0f/gdx-1.1.1-SNAPSHOT.jar" exported="true"/>
+	<classpathentry sourcepath="C:/Users/Bob/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx-freetype/1.1.1-SNAPSHOT/fcf1db4069a801d27f2e816bd89970fb5c04c003/gdx-freetype-1.1.1-SNAPSHOT-sources.jar" kind="lib" path="C:/Users/Bob/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx-freetype/1.1.1-SNAPSHOT/c213a08a3618de7c7cd81f2a91a058ae137ebbbe/gdx-freetype-1.1.1-SNAPSHOT.jar" exported="true"/>
 </classpath>

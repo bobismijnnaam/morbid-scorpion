@@ -2,11 +2,11 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="gen"/>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.ANDROID_FRAMEWORK"/>
 	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.LIBRARIES"/>
 	<classpathentry exported="true" kind="src" path="/morbid-scorpion-core"/>
 	<classpathentry exported="true" kind="lib" path="C:/Users/Bob/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx-backend-android/1.1.1-SNAPSHOT/f806ec713ed6fc1cee14d6dbe2f7119c18199e41/gdx-backend-android-1.1.1-SNAPSHOT.jar" sourcepath="C:/Users/Bob/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx-backend-android/1.1.1-SNAPSHOT/3abdaedc54114f5dcad26ccb2832539c88fdb3ad/gdx-backend-android-1.1.1-SNAPSHOT-sources.jar"/>
 	<classpathentry exported="true" kind="lib" path="C:/Users/Bob/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx/1.1.1-SNAPSHOT/be29388797499d6240dcc2a5bef66bc2488c2d0f/gdx-1.1.1-SNAPSHOT.jar" sourcepath="C:/Users/Bob/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx/1.1.1-SNAPSHOT/cb45c28e7a96bb38f09acaf342ceffffcf9aa966/gdx-1.1.1-SNAPSHOT-sources.jar"/>
-	<classpathentry exported="true" kind="con" path="com.android.ide.eclipse.adt.DEPENDENCIES"/>
 	<classpathentry kind="output" path="bin/classes"/>
 </classpath>

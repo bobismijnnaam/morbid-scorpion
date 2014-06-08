@@ -1,8 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="src" path="src"/>
-	<classpathentry exported="true" kind="src" path="/morbid-scorpion-core"/>
-	<classpathentry exported="true" kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
-	<classpathentry exported="true" kind="con" path="org.springsource.ide.eclipse.gradle.classpathcontainer"/>
 	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER" exported="true"/>
+	<classpathentry kind="src" path="/morbid-scorpion-core" exported="true"/>
+	<classpathentry sourcepath="C:/Users/Bob/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx-backend-robovm/1.1.1-SNAPSHOT/3b0c23faba97ba1dd3a4b7de7f422fa473d35d3e/gdx-backend-robovm-1.1.1-SNAPSHOT-sources.jar" kind="lib" path="C:/Users/Bob/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx-backend-robovm/1.1.1-SNAPSHOT/1d44ddf148df2b58562c22895dc879f6c1f93dfa/gdx-backend-robovm-1.1.1-SNAPSHOT.jar" exported="true"/>
+	<classpathentry sourcepath="C:/Users/Bob/.gradle/caches/modules-2/files-2.1/org.robovm/robovm-cocoatouch/0.0.12/9eb454a6605862c2632132d4b7176f7d7230c3f9/robovm-cocoatouch-0.0.12-sources.jar" kind="lib" path="C:/Users/Bob/.gradle/caches/modules-2/files-2.1/org.robovm/robovm-cocoatouch/0.0.12/833f1c6c42b6fbc5c07ea266519e7d6d2a93eb8c/robovm-cocoatouch-0.0.12.jar" exported="true"/>
+	<classpathentry sourcepath="C:/Users/Bob/.gradle/caches/modules-2/files-2.1/org.robovm/robovm-rt/0.0.12/dec86f24e33d1c69764f885d0d0ffee2f195d3b8/robovm-rt-0.0.12-sources.jar" kind="lib" path="C:/Users/Bob/.gradle/caches/modules-2/files-2.1/org.robovm/robovm-rt/0.0.12/3826eb9e945dc49e2b168dc7eff80c50d86f4aa9/robovm-rt-0.0.12.jar" exported="true"/>
+	<classpathentry sourcepath="C:/Users/Bob/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx/1.1.1-SNAPSHOT/cb45c28e7a96bb38f09acaf342ceffffcf9aa966/gdx-1.1.1-SNAPSHOT-sources.jar" kind="lib" path="C:/Users/Bob/.gradle/caches/modules-2/files-2.1/com.badlogicgames.gdx/gdx/1.1.1-SNAPSHOT/be29388797499d6240dcc2a5bef66bc2488c2d0f/gdx-1.1.1-SNAPSHOT.jar" exported="true"/>
+	<classpathentry sourcepath="C:/Users/Bob/.gradle/caches/modules-2/files-2.1/org.robovm/robovm-objc/0.0.12/520d3438ef780dc0a9713b2913c196651d1f1f5a/robovm-objc-0.0.12-sources.jar" kind="lib" path="C:/Users/Bob/.gradle/caches/modules-2/files-2.1/org.robovm/robovm-objc/0.0.12/1dd59ffcf4d4892dcf65f07d8d6d5d83e2cc1d02/robovm-objc-0.0.12.jar" exported="true"/>
 </classpath>

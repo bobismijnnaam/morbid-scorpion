@@ -1,5 +1,7 @@
 package nl.plusminos.gdx.morbidscorpion;
 
+import nl.plusminos.gdx.morbidscorpion.utils.FontManager;
+import nl.plusminos.gdx.morbidscorpion.utils.Global;
 import nl.plusminos.harness.gdx.gamestates.GamestateManager;
 import nl.plusminos.harness.gdx.gamestates.StateAction;
 
@@ -13,10 +15,13 @@ public class MorbidScorpion extends ApplicationAdapter {
 	SpriteBatch batch;
 	Texture img;
 	
-	GamestateManager gm;
+	public static GamestateManager gm;
 	
 	@Override
 	public void create () {
+		// Setup some initial stuff
+		Global.lekton = new FontManager("fonts/Lekton-Bold.ttf");
+		
 		gm = new GamestateManager(1/60, "nl.plusminos.gdx.morbidscorpion.gamestates");
 		
 		gm.changeState(StateAction.SET, "Game");
@@ -51,5 +56,7 @@ public class MorbidScorpion extends ApplicationAdapter {
 	public void dispose() {
 		// Dispose GamestateMachine
 		gm.dispose();
+		
+		Global.lekton.dispose();
 	}
 }
